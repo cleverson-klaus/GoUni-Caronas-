@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoUni - Caronas Universitárias</title>
+
+    <!-- Bootstrap e Ícones (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+
+    <!-- [CAMINHO CORRIGIDO] -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="dark-mode">
+
+    <!-- Overlay de Carregamento Global -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+
+    <!-- ================== SIDEBAR DESKTOP ================== -->
+    <nav class="sidebar sidebar-desktop">
+        <div class="sidebar-logo" style="padding: 0 10px;">
+            <!-- [CAMINHO CORRIGIDO] -->
+            <img src="./assets/img/gouni-logo.png" alt="Logo GoUni" style="width: 100%; height: auto;">
+        </div>
+
+        <div class="sidebar-nav">
+            <button class="nav-btn" data-target="page-mapa" title="Mapa">
+                <i class="bi bi-map-fill"></i>
+                <span>Mapa</span>
+            </button>
+            <button class="nav-btn" data-target="page-viagens" title="Caronas">
+                <i class="bi bi-list-stars"></i>
+                <span>Caronas</span>
+            </button>
+            <button class="nav-btn" data-target="page-chat" title="Chat">
+                <i class="bi bi-chat-dots-fill"></i>
+                <span>Chat</span>
+            </button>
+            
+            <!-- Botão de Login (some quando logado) -->
+            <button class="nav-btn" data-target="page-login" title="Perfil" id="login-nav-btn"> <i class="bi bi-person-fill"></i>
+                <span>Perfil</span>
+            </button>
+        </div>
+
+        <!-- Perfil (Avatar) e Sair (Aparece quando logado) -->
+        <div class="sidebar-footer">
+            <button class="profile-section-btn" id="profile-sidebar-btn" style="display: none;">
+                <div class="profile-avatar">
+                    <span id="profile-initials"></span>
+                </div>
+                <span id="profile-name"></span>
+            </button>
+
+            <!-- Menu Pop-up (Editar/Sair) -->
+            <div class="profile-menu" id="profile-menu">
+                <a href="#" class="profile-menu-item" id="edit-profile-btn">
+                    <i class="bi bi-person-fill-gear"></i> Editar Perfil
+                </a>
+                <button class="profile-menu-item" id="logout-menu-btn">
+                    <i class="bi bi-box-arrow-right"></i> Sair
+                </button>
+            </div>
+
+            <!-- Botão SOS (Fixo embaixo) -->
+            <button class="sos-button-sidebar" title="Botão do Pânico">
+                <i class="bi bi-shield-fill-exclamation"></i>
+                <span>SOS</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ================== CONTAINER PRINCIPAL ================== -->
+    <div class="content-container">
+
+        <!-- Página de Login -->
+        <main id="page-login" class="page vh-100" style="justify-content: center; align-items: center;">
+            <div class="login-container">
+                
+                <div class="register-header" style="text-align: center; margin-bottom: 1rem;">
+                    <!-- [CAMINHO CORRIGIDO] -->
+                    <img src="./assets/img/gouni-logo.png" alt="Logo GoUni" style="width: 80px; height: auto;">
+                </div>
+
+                <h2>Login</h2>
+                <p>Acesse sua conta para continuar.</p>
+                <form id="formLogin">
+                    <div class="mb-3">
+                        <label for="loginEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="loginEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPassword" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                    </div>
+                    <div id="login-error-message" class="text-danger mb-3" style="display: none;"></div>
+                    <button type="submit" class="btn btn-login-primary w-100"><i class="bi bi-box-arrow-in-right me-2"></i>Entrar</button>
+                </form>
+                <p class="mt-3 text-center">
+                    Não tem uma conta? <a href="./pages/cadastro.html">Cadastre-se</a>
+                </p>
+            </div>
+        </main>
+
+        <!-- Página do Mapa -->
+        <main id="page-mapa" class="page app-container" style="display: none;">
+            <div class="map-placeholder">
+                <div id="map"></div>
+            </div>
+        </main>
+
+        <!-- Página de Caronas (com Abas e Formulários) -->
+        <main id="page-viagens" class="page app-container" style="display: none;">
+             <div class="page-header-viagens">
+                <h1 class="page-title-viagens">Comunidade de Caronas</h1>
+            </div>
+            
+            <!-- Abas Principais: Criar, Pedidos, Ofertas -->
+            <nav class="nav mode-toggle" id="viagensTabs" role="tablist">
+                <button class="nav-link active" id="criar-tab" data-bs-toggle="tab" data-bs-target="#criar-panel" type="button" role="tab" aria-controls="criar-panel" aria-selected="true">
+                    <i class="bi bi-plus-circle-fill"></i> Criar
+                </button>
+                <button class="nav-link" id="pedidos-tab" data-bs-toggle="tab" data-bs-target="#pedidos-panel" type="button" role="tab" aria-controls="pedidos-panel" aria-selected="false">
+                    <i class="bi bi-hand-index-thumb"></i> Pedidos
+                </button>
+                <button class="nav-link" id="ofertas-tab" data-bs-toggle="tab" data-bs-target="#ofertas-panel" type="button" role="tab" aria-controls="ofertas-panel" aria-selected="false">
+                    <i class="bi bi-steering"></i> Ofertas
+                </button>
+            </nav>
+
+            <div class="container-viagens">
+                <div class="tab-content">
+                    
+                    <!-- Aba "CRIAR" (Formulários) -->
+                    <div class="tab-pane fade show active" id="criar-panel" role="tabpanel">
+                        <div class="action-panel" style="max-width: 600px; margin: 0 auto 20px auto;">
+                            <nav class="nav mode-toggle" id="modeTabs" role="tablist">
+                                <button class="nav-link active" id="rider-tab" data-bs-toggle="tab" data-bs-target="#rider-panel" type="button" role="tab" aria-controls="rider-panel" aria-selected="true">
+                                    <i class="bi bi-car-front"></i> Pedir Carona
+                                </button>
+                                <button class="nav-link" id="driver-tab" data-bs-toggle="tab" data-bs-target="#driver-panel" type="button" role="tab" aria-controls="driver-panel" aria-selected="false">
+                                    <i class="bi bi-steering"></i> Oferecer Carona
+                                </button>
+                            </nav>
+                        
+                            <div class="tab-content">
+                                <!-- Formulário "Pedir Carona" -->
+                                <div class="tab-pane fade show active" id="rider-panel" role="tabpanel">
+                                    <form id="formProcurarCarona">
+                                        <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-partida-container"></div></div>
+                                        <div class="mb-3 input-group-favorito">
+                                            <label for="inputPartida" class="form-label d-flex justify-content-between">
+                                                Local de Partida
+                                                <button type="button" class="btn btn-link btn-sm p-0" id="use-gps-partida"><i class="bi bi-geo-fill"></i> Usar minha localização</button>
+                                            </label>
+                                            <input type="text" class="form-control" id="inputPartida" placeholder="📍 Ex: Paraiso, SC" required>
+                                            <button type="button" class="btn-salvar-favorito" id="btnSalvarPartida" title="Salvar como favorito" aria-label="Salvar local de partida como favorito"><i class="bi bi-star"></i></button>
+                                        </div>
+                                        
+                                        <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-destino-container"></div></div>
+                                        <div class="mb-3 input-group-favorito">
+                                            <label for="inputDestino" class="form-label">Destino (Campus/Bairro)</label>
+                                            <input type="text" class="form-control" id="inputDestino" placeholder="🏁 Ex: Guaraciaba, SC" required>
+                                            <button type="button" class="btn-salvar-favorito" id="btnSalvarDestino" title="Salvar como favorito" aria-label="Salvar local de destino como favorito"><i class="bi bi-star"></i></button>
+                                        </div>
+
+                                        <div class="mb-3"><label for="inputDataHora" class="form-label">Data e Hora da Carona</label><input type="datetime-local" class="form-control" id="inputDataHora" required></div>
+                                        <div class="mb-3" id="preferencia-genero-container" style="display: none;"><label class="form-label">Preferência de Motorista</label><div class="form-check"><input class="form-check-input" type="checkbox" id="prefApenasMulher"><label class="form-check-label" for="prefApenasMulher">Aceitar apenas motoristas mulheres</label></div></div>
+                                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-send-plus-fill me-2"></i>Publicar Pedido de Carona</button>
+                                    </form>
+                                </div>
+                        
+                                <!-- Formulário "Oferecer Carona" -->
+                                <div class="tab-pane fade" id="driver-panel" role="tabpanel">
+                                    <form id="formOferecerCarona">
+                                        <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-partida-motorista"></div></div>
+                                        <div class="mb-3"><label for="inputPartidaMotorista" class="form-label">Saindo de onde?</label><input type="text" class="form-control" id="inputPartidaMotorista" placeholder="📍 Ex: Guaraciaba, SC" required></div>
+                                        
+                                        <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-destino-motorista"></div></div>
+                                        <div class="mb-3"><label for="inputDestinoMotorista" class="form-label">Indo para onde?</label><input type="text" class="form-control" id="inputDestinoMotorista" placeholder="🏁 Ex: São Miguel do Oeste, SC" required></div>
+                                        
+                                        <div class="mb-3"><label for="inputCusto" class="form-label">$ R$ (Ajuda de Custo)</label><input type="number" class="form-control" id="inputCusto" placeholder="Ex: 5,00" style="max-width: 150px;" required></div>
+                                        <button type="submit" class="btn btn-warning w-100 fw-bold"><i class="bi bi-sign-turn-right-fill me-2"></i>Publicar Rota</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Aba "Pedidos" (Lista) -->
+                    <div class="tab-pane fade" id="pedidos-panel" role="tabpanel">
+                        <h3 class="tab-title">Pedidos de Carona (Passageiros)</h3>
+                        <div id="pedidos-list-container">
+                            <div id="pedidos-loading" class="text-center" style="display: none;"><span class="spinner-border text-primary" role="status"></span><p class="mt-2">Buscando pedidos...</p></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Aba "Ofertas" (Lista) -->
+                    <div class="tab-pane fade" id="ofertas-panel" role="tabpanel">
+                        <h3 class="tab-title">Ofertas de Carona (Motoristas)</h3>
+                        <div class="filtros-container card-viagem">
+                           <div class="row g-2">
+                                <div class="col-md"><label for="filtroOrigem" class="form-label">Filtrar por Origem:</label><input type="text" id="filtroOrigem" class="form-control" placeholder="Ex: Guaraciaba"></div>
+                                <div class="col-md"><label for="filtroDestino" class="form-label">Filtrar por Destino:</label><input type="text" id="filtroDestino" class="form-control" placeholder="Ex: São Miguel"></div>
+                                <div class="col-md-auto d-flex align-items-end"><button id="btnBuscarCaronas" class="btn btn-details w-100"><i class="bi bi-search"></i> Buscar</button></div>
+                            </div>
+                           </div>
+                        <div id="caronas-list-container" class="mt-4">
+                            <div id="caronas-loading" class="text-center" style="display: none;"><span class="spinner-border text-primary" role="status"></span><p class="mt-2">Buscando caronas...</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Página de Chat -->
+        <main id="page-chat" class="page chat-container" style="display: none;">
+            <header class="chat-header">
+                <button class="back-button" id="chatBackButton" title="Voltar"><i class="bi bi-arrow-left"></i></button>
+                <div class="contact-info">
+                    <div class="contact-avatar">...</div>
+                    <div class="contact-name">Conversa</div>
+                </div>
+            </header>
+            <div class="chat-body" id="chatBody"><!-- Mensagens --></div>
+            <footer class="chat-footer">
+                <input type="text" class="message-input" id="messageInput" placeholder="Digite sua mensagem...">
+                <button class="send-button" id="sendButton" title="Enviar"><i class="bi bi-send-fill"></i></button>
+            </footer>
+        </main>
+
+    </div>
+
+    <!-- ================== NAVEGAÇÃO MOBILE ================== -->
+    <nav class="sidebar-mobile-bottom" id="mobile-nav">
+        <!-- Logo (só logado) -->
+        <div class="nav-logo-mobile" id="mobile-nav-logo" style="display: none;">
+            <img src="./assets/img/gouni-logo.png" alt="Logo GoUni" style="width: 80%; height: auto; max-width: 120px;">
+        </div>
+        <!-- Botão Mapa -->
+        <button class="nav-btn" data-target="page-mapa" title="Mapa">
+            <i class="bi bi-map-fill"></i>
+            <span>Mapa</span>
+        </button>
+        <!-- Botão Caronas -->
+        <button class="nav-btn" data-target="page-viagens" title="Caronas">
+            <i class="bi bi-list-stars"></i>
+            <span>Caronas</span>
+        </button>
+        <!-- Botão Chat -->
+        <button class="nav-btn" data-target="page-chat" title="Chat">
+            <i class="bi bi-chat-dots-fill"></i>
+            <span>Chat</span>
+        </button>
+        <!-- Botão Perfil (Login/Avatar) -->
+        <button class="nav-btn" data-target="page-login" title="Perfil" id="mobile-login-nav-btn">
+            <i class="bi bi-person-fill"></i>
+            <span>Perfil</span>
+        </button>
+        <button class="profile-section-btn" id="mobile-profile-sidebar-btn" style="display: none;">
+            <div class="profile-avatar">
+                <span id="mobile-profile-initials"></span>
+            </div>
+        </button>
+        <!-- Botão SOS -->
+        <button class="sos-button-mobile" id="mobile-sos-btn" title="Botão do Pânico">
+            <i class="bi bi-shield-fill-exclamation"></i>
+            <span>SOS</span> 
+        </button>
+    </nav>
+    
+    <!-- Menu Pop-up Mobile -->
+    <div class="profile-menu mobile-profile-menu" id="mobile-profile-menu">
+        <a href="#" class="profile-menu-item" id="mobile-edit-profile-btn">
+            <i class="bi bi-person-fill-gear"></i> Editar Perfil
+        </a>
+        <button class="profile-menu-item" id="mobile-logout-menu-btn">
+            <i class="bi bi-box-arrow-right"></i> Sair
+        </button>
+    </div>
+
+    <!-- Modal de Pânico -->
+    <div class="modal" id="panicModal">
+        <div class="modal-content">
+            <div class="modal-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <h2 class="modal-title">Botão de Pânico</h2>
+            <p class="modal-text">Avisaremos as autoridades e seus contatos de emergência. Você está em perigo?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancelPanic">Cancelar</button>
+                <button class="btn btn-danger" id="confirmPanic">Sim, preciso de ajuda</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- [NOVO] Modal de Edição de Pedido -->
+    <div class="modal" id="editPedidoModal" style="display: none;">
+        <div class="modal-content" style="max-width: 550px;">
+            <h2 class="modal-title">Editar Pedido de Carona</h2>
+            <form id="formEditarPedido">
+                <input type="hidden" id="editPedidoId">
+                <div class="mb-3 text-start">
+                    <label for="editOrigem" class="form-label">Local de Partida</label>
+                    <input type="text" class="form-control" id="editOrigem" required>
+                </div>
+                <div class="mb-3 text-start">
+                    <label for="editDestino" class="form-label">Destino</label>
+                    <input type="text" class="form-control" id="editDestino" required>
+                </div>
+                <div class="mb-3 text-start">
+                    <label for="editDataHora" class="form-label">Data e Hora</label>
+                    <input type="datetime-local" class="form-control" id="editDataHora" required>
+                </div>
+                <div class="modal-buttons mt-4"><button type="button" class="btn btn-secondary" id="cancelEditPedido">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Alterações</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script type="module" src="./scripts/index.js"></script>
+</body>
+</html>
