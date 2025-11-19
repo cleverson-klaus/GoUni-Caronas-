@@ -4,7 +4,7 @@
 
 // Importa os módulos de JS
 import { supabase } from './supabaseClient.js';
-import { api } from './api.js';
+import { signIn } from './api.js'; // [CORRIGIDO] Importa 'signIn' diretamente
 import { traçarESalvarRota, buscarRotas, deletarRota } from './rotas.js';
 import { criarPedido, buscarPedidos, deletarPedido } from './pedidos.js';
 import { buscarFavoritos, criarFavorito } from './favoritos.js';
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // USA A FUNÇÃO DE LOGIN DO api.js
-                const { data, error } = await api.signIn(email, password);
+                const { data, error } = await signIn(email, password); // [CORRIGIDO] Chama a função diretamente
 
                 if (error) { throw new Error(error.message); }
 
@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         return `
         <div class="card-viagem trip-card" data-pedido-id="${pedido.id}">
-            <!-- [MODIFICADO] Adicionados botões de ação -->
+            
             <div class="card-actions">
                 ${editButtonHTML}
                 ${deleteButtonHTML}

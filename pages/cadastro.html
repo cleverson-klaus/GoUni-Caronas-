@@ -19,7 +19,7 @@
                 <p>Etapa de Verificação de Estudante</p>
             </div>
 
-            <form id="registerForm" onsubmit="handleSubmit(event)">
+            <form id="registerForm">
                 <div id="alert-placeholder"></div>
 
                 <div class="mb-3">
@@ -103,87 +103,69 @@
 
     <script type="module" src="../scripts/api.js"></script>
 
-    <script type="module">
-        // IMPORTA O MÓDULO DE API
-        import { api } from '../scripts/api.js';
+    <!-- Em algum lugar dentro de cadastro.html -->
 
-        // Listener para mostrar/esconder campos do motorista
-        document.addEventListener('DOMContentLoaded', () => {
-            const driverCheck = document.getElementById('isDriverCheck');
-            const vehicleInfo = document.getElementById('vehicle-info-section');
+<script type="module">
+    // Importa a função específica, e não o 'api'
+    import { cadastrarUsuario } from '../scripts/api.js';
 
-            if (driverCheck && vehicleInfo) {
-                driverCheck.addEventListener('change', () => {
-                    if (driverCheck.checked) {
-                        vehicleInfo.style.display = 'block';
-                    } else {
-                        vehicleInfo.style.display = 'none';
-                    }
-                });
-            }
-        });
+    const registerForm = document.getElementById('registerForm');
+    const alertPlaceholder = document.getElementById('alert-placeholder');
 
-        // Validação e envio do formulário
-        async function handleSubmit(event) {
-            event.preventDefault();
-            
-            const form = event.target;
-            const submitBtn = document.getElementById('submitBtn');
-            const alertPlaceholder = document.getElementById('alert-placeholder');
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitButton = registerForm.querySelector('button[type="submit"]');
 
-            alertPlaceholder.innerHTML = '';
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processando...';
+        // Limpa mensagens anteriores
+        alertPlaceholder.innerHTML = '';
 
-            const userData = {
-                nome: form.fullName.value,
-                email: form.universityEmail.value,
-                password: form.password.value,
-                genero: form.gender.value || 'nao-informado',
-                is_driver: form.isDriverCheck.checked,
-                vehicle_model: form.vehicleModel.value || null,
-                vehicle_color: form.vehicleColor.value || null
-            };
+        // Desabilita o botão para evitar múltiplos envios
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cadastrando...';
 
-            try {
-                // Chama a API (do api.js) que fala com o backend
-                const result = await api.cadastrarUsuario(userData);
+        // Coleta os dados do formulário
+        const formData = new FormData(registerForm);
+        const dadosDoFormulario = Object.fromEntries(formData.entries());
 
-                if (result.error) {
-                    throw new Error(result.message || 'Erro desconhecido');
-                }
+        try {
+            // Chama a função importada diretamente
+            const data = await cadastrarUsuario(dadosDoFormulario);
 
-                showAlert('Cadastro quase completo! Enviamos um link de confirmação para o seu email. Por favor, verifique sua caixa de entrada (e spam).', 'success');
-                
+            if (data && data.user) {
+                // Sucesso!
+                registerForm.style.display = 'none'; // Esconde o formulário
+                alertPlaceholder.innerHTML = `
+                    <div class="alert alert-success">
+                        Cadastro realizado com sucesso! Redirecionando para o login...
+                    </div>
+                `;
+
+                // Opcional: Redirecionar para o login após alguns segundos
                 setTimeout(() => {
-                    window.location.href = '../index.html'; // Volta para a página de login
-                }, 6000); 
-
-            } catch (error) {
-                showAlert(error.message, 'danger');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Finalizar Cadastro';
+                    window.location.href = 'index.html'; // Ou a página de login
+                }, 5000); // 5 segundos
             }
+        } catch (error) {
+            console.error('Erro no cadastro:', error.message);
+            let friendlyError = 'Ocorreu um erro ao tentar cadastrar. Tente novamente.';
+            if (error.message.includes('User already registered')) {
+                friendlyError = 'Este e-mail já está cadastrado. Tente fazer o login.';
+            } else if (error.message.includes('password should be at least 6 characters')) {
+                friendlyError = 'A senha deve ter no mínimo 6 caracteres.';
+            }
+
+            alertPlaceholder.innerHTML = `
+                <div class="alert alert-danger">
+                    ${friendlyError}
+                </div>
+            `;
+        } finally {
+            // Reabilita o botão
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="bi bi-check-circle-fill"></i> Finalizar Cadastro';
         }
+    });
+</script>
 
-        // Função para exibir alertas dinâmicos
-        function showAlert(message, type) {
-            const alertPlaceholder = document.getElementById('alert-placeholder');
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = [
-                `<div class="alert alert-${type} alert-dismissible" role="alert">`,
-                `   <div>${message}</div>`,
-                '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-                '</div>'
-            ].join('');
-
-            alertPlaceholder.append(wrapper);
-        }
-
-        // Anexa a função ao 'window' para ser acessível pelo HTML (onsubmit)
-        window.handleSubmit = handleSubmit;
-
-    </script>
 </body>
 </html>
