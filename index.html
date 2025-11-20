@@ -182,7 +182,14 @@
                                 <div class="tab-pane fade" id="driver-panel" role="tabpanel">
                                     <form id="formOferecerCarona">
                                         <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-partida-motorista"></div></div>
-                                        <div class="mb-3"><label for="inputPartidaMotorista" class="form-label">Saindo de onde?</label><input type="text" class="form-control" id="inputPartidaMotorista" placeholder="📍 Ex: Guaraciaba, SC" required></div>
+                                        <div class="mb-3 input-group-favorito">
+                                            <label for="inputPartidaMotorista" class="form-label d-flex justify-content-between">
+                                                Saindo de onde?
+                                                <button type="button" class="btn btn-link btn-sm p-0" id="use-gps-partida-motorista"><i class="bi bi-geo-fill"></i> Usar minha localização</button>
+                                            </label>
+                                            <input type="text" class="form-control" id="inputPartidaMotorista" placeholder="📍 Ex: Guaraciaba, SC" required>
+                                            <button type="button" class="btn-salvar-favorito" id="btnSalvarPartidaMotorista" title="Salvar como favorito" aria-label="Salvar local de partida como favorito"><i class="bi bi-star"></i></button>
+                                        </div>
                                         
                                         <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-destino-motorista"></div></div>                                        
                                         <div class="mb-3 input-group-favorito">

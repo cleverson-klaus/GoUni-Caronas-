@@ -4,9 +4,9 @@
 
 // Importa os módulos de JS
 import { supabase } from './supabaseClient.js';
-import { signIn } from './api.js'; // [CORRIGIDO] Importa 'signIn' diretamente
-import { traçarESalvarRota, buscarRotas, deletarRota } from './rotas.js';
-import { criarPedido, buscarPedidos, deletarPedido } from './pedidos.js';
+import { signIn } from './api.js';
+import { traçarESalvarRota, buscarRotas, deletarRota } from './rotas.js'; // Funções para OFERTAS
+import { criarPedido, buscarPedidos, deletarPedido, buscarPedidoPorId, atualizarPedido } from './pedidos.js'; // [CORRIGIDO] Funções para PEDIDOS
 import { buscarFavoritos, criarFavorito } from './favoritos.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -768,46 +768,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     // =============================================
-    // LISTENERS DE FORMULÁRIOS (CRIAR CARONA)
+    // [CORRIGIDO] LISTENERS DE FORMULÁRIOS (CRIAR CARONA)
     // =============================================
     // --- Formulário PEDIR Carona (Passageiro) ---
-    const formProcurar = document.getElementById('formProcurarCarona');
-    if (formProcurar) {
-        formProcurar.addEventListener('submit', async function(e) {
-            e.preventDefault();
+    document.getElementById('formProcurarCarona')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        showLoading();
+
+        try {
             const partidaTxt = document.getElementById('inputPartida').value;
             const destinoTxt = document.getElementById('inputDestino').value;
             const dataHora = document.getElementById('inputDataHora').value;
             const apenasMulher = document.getElementById('prefApenasMulher').checked;
-            
-            showLoading();
 
-            // Salva o Pedido no banco de dados
-            try {
-                const pedidoData = {
-                    origemText: partidaTxt,
-                    destinoText: destinoTxt,
-                    dataViagem: new Date(dataHora).toISOString(),
-                    preferenciaGenero: apenasMulher ? 'apenas_mulher' : 'qualquer'
-                };
-                
-                const novoPedido = await criarPedido(pedidoData);
-                
-                alert('Sucesso! Seu pedido de carona foi publicado.');
-                formProcurar.reset();
-                
-                // Ativa a aba "Pedidos" para o usuário ver o que acabou de criar
-                document.getElementById('pedidos-tab').click();
-            } catch (error) {
-                console.error("Erro ao publicar pedido:", error);
-                alert("Erro ao publicar seu pedido: " + error.message);
-            } finally {
-                hideLoading();
-            }
-        });
-    }
+            const pedidoData = {
+                origemText: partidaTxt,
+                destinoText: destinoTxt,
+                dataViagem: new Date(dataHora).toISOString(),
+                preferenciaGenero: apenasMulher ? 'apenas_mulher' : 'qualquer'
+            };
 
-    // --- Formulário OFERECER Carona (Motorista) --- [CORRIGIDO E MELHORADO]
+            await criarPedido(pedidoData);
+
+            this.reset(); // Limpa o formulário
+            // Ativa a aba "Pedidos" e recarrega a lista para o usuário ver a nova publicação
+            document.getElementById('pedidos-tab')?.click();
+
+        } catch (error) {
+            console.error("Erro ao publicar pedido:", error);
+            typeof showToast === 'function' ? showToast(`Erro ao publicar: ${error.message}`, 'danger') : alert(`Erro: ${error.message}`);
+        } finally {
+            hideLoading();
+        }
+    });
+
+    // --- Formulário OFERECER Carona (Motorista) ---
     document.getElementById('formOferecerCarona')?.addEventListener('submit', async function(e) {
         e.preventDefault();
         showLoading();
@@ -815,7 +810,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                // Usando showToast para uma melhor UX, mas alert é um fallback
                 typeof showToast === 'function' ? showToast('Você precisa estar logado para oferecer uma carona.', 'danger') : alert('Você precisa estar logado.');
                 hideLoading();
                 return;
@@ -835,9 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             await traçarESalvarRota(rotaData);
 
-            typeof showToast === 'function' ? showToast('Sua carona foi publicada com sucesso!', 'success') : alert('Carona publicada com sucesso!');
             this.reset(); // Limpa o formulário
-
             // Ativa a aba "Ofertas" e recarrega a lista para o usuário ver a nova publicação
             document.getElementById('ofertas-tab')?.click();
 
