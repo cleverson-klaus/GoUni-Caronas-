@@ -1,56 +1,44 @@
 import { supabase } from './supabaseClient.js';
 
-// Define um objeto 'api' para organizar as funções de comunicação com o backend/Supabase.
-export const api = {
-    /**
-     * Cadastra um novo usuário enviando os dados para o backend.
-     * @param {object} userData - Os dados do usuário.
-     * @param {string} userData.nome - O nome completo do usuário.
-     * @param {string} userData.email - O email do usuário.
-     * @param {string} userData.password - A senha do usuário.
-     * @returns {Promise<object>} A resposta do servidor.
-     */
-    cadastrarUsuario: async (userData) => {
-        // O servidor backend está rodando na porta 3000, conforme o GUIA_SUPABASE.md
-        const API_URL = 'http://localhost:3000';
+/**
+ * Cadastra um novo usuário diretamente com o Supabase.
+ * @param {object} dadosDoFormulario - Os dados do formulário de cadastro.
+ * @returns {Promise<object>} Os dados do usuário e da sessão.
+ */
+export async function cadastrarUsuario(dadosDoFormulario) {
+    // Corrigido para usar os 'name' corretos do formulário de cadastro.html
+    const { universityEmail, password, fullName, ...outrosDados } = dadosDoFormulario;
 
-        try {
-            const response = await fetch(`${API_URL}/cadastro`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userData),
-            });
+    // A validação agora usa as variáveis corretas
+    if (!universityEmail || !password || !fullName) {
+        throw new Error("Nome, email e senha são obrigatórios.");
+    }
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                // Se a resposta não for bem-sucedida (status 4xx ou 5xx),
-                // lança um erro com a mensagem vinda do backend.
-                throw new Error(result.message || 'Ocorreu um erro no cadastro.');
+    // Usa o SDK do Supabase para cadastrar o usuário
+    const { data, error } = await supabase.auth.signUp({
+        email: universityEmail,
+        password: password,
+        options: {
+            // Passa os dados extras para o trigger do Supabase
+            data: {
+                full_name: fullName,
+                ...outrosDados
             }
-
-            return result;
-
-        } catch (error) {
-            console.error('Erro ao cadastrar usuário:', error);
-            // Retorna um objeto de erro padronizado para o formulário tratar.
-            return { error: error.message };
         }
-    },
+    });
 
-    /**
-     * Autentica um usuário existente no Supabase.
-     * @param {string} email - O email do usuário.
-     * @param {string} password - A senha do usuário.
-     * @returns {Promise<{data: object, error: object}>} O resultado da tentativa de login.
-     */
-    signIn: async (email, password) => {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-        return { data, error };
-    },
-};
+    if (error) {
+        // Lança o erro do Supabase, que é mais claro (ex: "User already registered")
+        throw error;
+    }
+
+    return data;
+}
+
+/**
+ * Realiza o login do usuário com email e senha.
+ * @param {string} email - O email do usuário.
+ * @param {string} password - A senha do usuário.
+ * @returns {Promise<object>} A resposta da API do Supabase.
+ */
+export const signIn = (email, password) => supabase.auth.signInWithPassword({ email, password });

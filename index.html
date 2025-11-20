@@ -173,7 +173,7 @@
                                         </div>
 
                                         <div class="mb-3"><label for="inputDataHora" class="form-label">Data e Hora da Carona</label><input type="datetime-local" class="form-control" id="inputDataHora" required></div>
-                                        <div class="mb-3" id="preferencia-genero-container" style="display: none;"><label class="form-label">Preferência de Motorista</label><div class="form-check"><input class="form-check-input" type="checkbox" id="prefApenasMulher"><label class="form-check-label" for="prefApenasMulher">Aceitar apenas motoristas mulheres</label></div></div>
+                                        <div class="mb-3" id="preferencia-genero-container" style="display: none;"><label class="form-label">Preferência de Motorista</label><div class="form-check"><input class="form-check-input" type="checkbox" id="prefApenasMulher"><label class="form-check-label" for="prefApenasMulher">Quero apenas motoristas mulheres</label></div></div>
                                         <button type="submit" class="btn btn-primary w-100"><i class="bi bi-send-plus-fill me-2"></i>Publicar Pedido de Carona</button>
                                     </form>
                                 </div>
@@ -184,11 +184,17 @@
                                         <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-partida-motorista"></div></div>
                                         <div class="mb-3"><label for="inputPartidaMotorista" class="form-label">Saindo de onde?</label><input type="text" class="form-control" id="inputPartidaMotorista" placeholder="📍 Ex: Guaraciaba, SC" required></div>
                                         
-                                        <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-destino-motorista"></div></div>
-                                        <div class="mb-3"><label for="inputDestinoMotorista" class="form-label">Indo para onde?</label><input type="text" class="form-control" id="inputDestinoMotorista" placeholder="🏁 Ex: São Miguel do Oeste, SC" required></div>
+                                        <div class="mb-2"><label class="form-label">Favoritos:</label><div class="favoritos-container" id="favoritos-destino-motorista"></div></div>                                        
+                                        <div class="mb-3 input-group-favorito">
+                                            <label for="inputDestinoMotorista" class="form-label">Indo para onde?</label>
+                                            <input type="text" class="form-control" id="inputDestinoMotorista" placeholder="🏁 Ex: São Miguel do Oeste, SC" required>
+                                            <button type="button" class="btn-salvar-favorito" id="btnSalvarDestinoMotorista" title="Salvar como favorito" aria-label="Salvar local de destino como favorito"><i class="bi bi-star"></i></button>
+                                        </div>
                                         
+                                        <div class="mb-3"><label for="inputDataHoraMotorista" class="form-label">Data e Hora da Partida</label><input type="datetime-local" class="form-control" id="inputDataHoraMotorista" required></div>
+                                        <div class="mb-3"><label for="inputVagas" class="form-label">Vagas Disponíveis</label><input type="number" class="form-control" id="inputVagas" min="1" max="4" placeholder="Ex: 2" style="max-width: 150px;" required></div>
                                         <div class="mb-3"><label for="inputCusto" class="form-label">$ R$ (Ajuda de Custo)</label><input type="number" class="form-control" id="inputCusto" placeholder="Ex: 5,00" style="max-width: 150px;" required></div>
-                                        <button type="submit" class="btn btn-warning w-100 fw-bold"><i class="bi bi-sign-turn-right-fill me-2"></i>Publicar Rota</button>
+                                        <button type="submit" class="btn btn-warning w-100 fw-bold"><i class="bi bi-sign-turn-right-fill me-2"></i>Publicar Carona</button>
                                     </form>
                                 </div>
                             </div>

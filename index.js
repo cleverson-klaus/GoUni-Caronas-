@@ -9,10 +9,16 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001; // Alterado para 3001 para evitar conflito com o Next.js
 
 // Configuração do Middleware
-app.use(cors()); // Permite requisições do seu frontend
+app.use(cors({
+    origin: [
+        'https://cleverson-klaus.github.io', // Permite seu site em produção
+        'http://localhost:3000', // Permite seu ambiente de desenvolvimento Next.js
+        'http://127.0.0.1:5500' // Permite o Live Server do VSCode
+    ]
+}));
 app.use(express.json()); // Permite ao Express entender JSON
 
 // === Configuração do Cliente ADMIN do Supabase ===
