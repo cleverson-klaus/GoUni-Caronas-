@@ -4,9 +4,9 @@
 
 // Importa os módulos de JS
 import { supabase } from './supabaseClient.js';
-import { signIn } from './api.js'; // [CORRIGIDO] Importa 'signIn' diretamente
-import { traçarESalvarRota, buscarRotas, deletarRota } from './rotas.js';
-import { criarPedido, buscarPedidos, deletarPedido } from './pedidos.js';
+import { signIn } from './api.js';
+import { traçarESalvarRota, buscarRotas, deletarRota } from './rotas.js'; // Funções para OFERTAS
+import { criarPedido, buscarPedidos, deletarPedido, buscarPedidoPorId, atualizarPedido } from './pedidos.js'; // [CORRIGIDO] Funções para PEDIDOS
 import { buscarFavoritos, criarFavorito } from './favoritos.js';
 
 document.addEventListener('DOMContentLoaded', () => {
