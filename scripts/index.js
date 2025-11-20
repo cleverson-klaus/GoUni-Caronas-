@@ -806,47 +806,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    // --- Formulário OFERECER Carona (Motorista) ---
-    const formOferecer = document.getElementById('formOferecerCarona');
-    if (formOferecer) {
-        formOferecer.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const partidaTxt = document.getElementById('inputPartidaMotorista').value;
-            const destinoTxt = document.getElementById('inputDestinoMotorista').value;
-            const valor = document.getElementById('inputCusto').value;
-            
+
+    // --- Formulário OFERECER Carona (Motorista) --- [CORRIGIDO E MELHORADO]
+    document.getElementById('formOferecerCarona')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        showLoading();
+
+        try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                alert('Erro: Você não está logado! Faça o login para publicar.');
+                // Usando showToast para uma melhor UX, mas alert é um fallback
+                typeof showToast === 'function' ? showToast('Você precisa estar logado para oferecer uma carona.', 'danger') : alert('Você precisa estar logado.');
+                hideLoading();
                 return;
             }
 
-            showLoading();
-            try {
-                const rotaSalva = await traçarESalvarRota({
-                    usuarioId: user.id,
-                    origemText: partidaTxt,
-                    destinoText: destinoTxt,
-                    distanciaKm: null, // Não estamos mais no mapa
-                    custo: parseFloat(valor),
-                    vagas: 3, // Valor padrão
-                    dataViagem: new Date().toISOString(), // Valor padrão
-                    rotaGeoJSON: null, // Não estamos mais no mapa
-                });
-                alert('Sucesso! Sua rota foi publicada com o ID: ' + rotaSalva.id);
-                formOferecer.reset();
-                
-                // Ativa a aba "Ofertas" para o usuário ver
-                document.getElementById('ofertas-tab').click();
-            } catch (error) {
-                console.error('Erro ao salvar rota no Supabase:', error);
-                alert('Erro ao publicar rota: ' + error.message);
-            } finally {
-                hideLoading();
-            }
-        });
-    }
+            // Coleta TODOS os dados do formulário
+            const rotaData = {
+                usuarioId: user.id,
+                origemText: document.getElementById('inputPartidaMotorista').value,
+                destinoText: document.getElementById('inputDestinoMotorista').value,
+                dataViagem: new Date(document.getElementById('inputDataHoraMotorista').value).toISOString(),
+                vagas: parseInt(document.getElementById('inputVagas').value, 10),
+                custo: parseFloat(document.getElementById('inputCusto').value),
+                distanciaKm: null, // Campo não utilizado neste formulário
+                rotaGeoJSON: null, // Campo não utilizado neste formulário
+            };
+
+            await traçarESalvarRota(rotaData);
+
+            typeof showToast === 'function' ? showToast('Sua carona foi publicada com sucesso!', 'success') : alert('Carona publicada com sucesso!');
+            this.reset(); // Limpa o formulário
+
+            // Ativa a aba "Ofertas" e recarrega a lista para o usuário ver a nova publicação
+            document.getElementById('ofertas-tab')?.click();
+
+        } catch (error) {
+            console.error('Erro ao publicar oferta de carona:', error);
+            typeof showToast === 'function' ? showToast(`Erro ao publicar: ${error.message}`, 'danger') : alert(`Erro: ${error.message}`);
+        } finally {
+            hideLoading();
+        }
+    });
     
     // =============================================
     // [NOVO] LÓGICA DE EDIÇÃO DE PEDIDO
